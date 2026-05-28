@@ -15,6 +15,7 @@ thumbs.db
 
 # PHP/XAMPP local config
 xampp-control.ini
+Includes/database.php
 
 # Uploaded/dev-only files you do not want public
 # Keep this commented if you want portfolio  images incldued
