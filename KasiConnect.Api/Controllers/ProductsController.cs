@@ -1,0 +1,248 @@
+﻿using KasiConnect.Api.Data;
+using KasiConnect.Api.DTO;
+using KasiConnect.Api.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+
+namespace KasiConnect.Api.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")] //ASP.NET will use controller name for the URL
+    public class ProductsController :ControllerBase
+    {
+        private readonly KasiConnectDbContext _context;
+
+        public ProductsController(KasiConnectDbContext context)
+        {
+            _context = context;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetProducts([FromQuery] string? search)
+        {
+             var query = _context.Products.AsQueryable();
+            
+            if(!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(product => product.Title != null && product.Title.Contains(search));
+            }
+
+            var products = await query
+        .OrderByDescending(product => product.CreatedAt)
+        .Select(product => new ProductDto
+        {
+            Id = product.Id,
+            Title = product.Title,
+            Description = product.Description,
+            Price = product.Price,
+            ImageUrl = product.Image == null
+                ? null
+                : $"/KasiConnect/Images/{product.Image}",
+            CreatedAt = product.CreatedAt
+        })
+        .ToListAsync();
+
+            return Ok(products);
+        }
+        
+        /*----------------------------
+                GetProduct
+        ----------------------------*/
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetProduct(int id)
+        {
+            var product = await _context.Products.Where(product => product.Id == id)
+                .Select(product => new ProductDto
+                {
+                    Id = product.Id,
+                    UserId = product.UserId,
+                    Title = product.Title,
+                    Description = product.Description,
+                    Price = product.Price,
+                    ImageUrl = product.Image == null
+                    ? null
+                    : $"/KasiConnect/Images/{product.Image}",
+                    CreatedAt = product.CreatedAt
+                })
+            .FirstOrDefaultAsync();
+
+
+            if(product == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(product);
+        }
+
+        /*----------------------------
+                GetReviews
+        ----------------------------*/
+
+        [HttpGet("{id:int}/reviews")]
+        public async Task<IActionResult> GetProductReviews(int id)
+        {
+            var productExists = await _context.Products.AnyAsync(product => product.Id == id);
+
+            if(!productExists)
+            {
+                return NotFound("Product not found");
+            }
+
+            var reviews = await (from review in _context.Reviews join user in _context.Users 
+                          on review.UserId equals user.Id where review.ProductId == id 
+                          orderby review.CreatedAt descending select new ReviewDto
+                {
+                    Id = review.Id,
+                    ProductId = review.ProductId,
+                    UserId = review.UserId,
+                    UserName = user.Name,
+                    Rating = review.Rating,
+                    ReviewText = review.ReviewText,
+                    CreatedAt = review.CreatedAt
+                })
+                .ToListAsync();
+                
+                return Ok(reviews);
+        }
+
+        /*----------------------------
+             Createing the reviews
+        ----------------------------*/
+
+        [HttpPost("{id:int}/reviews")]
+        public async Task<IActionResult> CreateProductReview(int id, CreateReviewDto createReviewDto)
+        {
+            var productExists = await _context.Products.AnyAsync(productExists => productExists.Id == id);
+
+            if(!productExists)
+            {
+                return NotFound("Product not found.");
+            }
+
+            var userExists = await _context.Users.AnyAsync(user => user.Id == createReviewDto.UserId);
+
+            if (!userExists)
+            {
+                return BadRequest("User does not exist!");
+            }
+
+            var review = new Review
+            {
+                ProductId = id,
+                UserId = createReviewDto.UserId,
+                Rating = createReviewDto.Rating,
+                ReviewText = createReviewDto.ReviewText
+            };
+
+            _context.Reviews.Add(review);
+            await _context.SaveChangesAsync();
+
+            var userName = await _context.Users.Where(user => user.Id == review.UserId)
+                           .Select(user => user.Name).FirstOrDefaultAsync();
+
+            var reviewDto = new ReviewDto
+            {
+                Id = review.Id,
+                ProductId = review.ProductId,
+                UserId = review.UserId,
+                Rating = review.Rating,
+                ReviewText = review.ReviewText,
+                CreatedAt = review.CreatedAt
+            };
+
+            return CreatedAtAction(nameof(GetProductReviews), new { id }, reviewDto);
+
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateProduct(CreateProductDto createProductDto)
+        {
+            var sellerExists = await _context.Users.AnyAsync(user => user.Id == createProductDto.UserId);
+
+            if(!sellerExists)
+            {
+                return BadRequest("Seller does npt exists");
+            }
+
+            var product = new Product
+            {
+                UserId = createProductDto.UserId,
+                Title = createProductDto.Title,
+                Description = createProductDto.Description,
+                Price = createProductDto.Price,
+                Image = createProductDto.Image
+            };
+
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+
+            var productDto = new ProductDto
+            {
+                Id = product.Id,
+                Title = product.Title,
+                Description = product.Description,
+                Price = product.Price,
+                ImageUrl = product.Image == null
+                ? null
+                : $"/KasiConnect/Images/{product.Image}",
+                CreatedAt = product.CreatedAt
+            };
+
+            return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, productDto);
+
+        }
+
+        [HttpGet("/api/users/{userId:int}/products")]
+        public async Task<IActionResult> GetUserProducts(int userId)
+
+
+        {
+            var userExists = await _context.Users.AnyAsync(user => user.Id == userId);
+
+            if(!userExists)
+            {
+                return NotFound("User not found.");
+            }
+
+            var products = await _context.Products.Where(product => product.UserId == userId)
+                           .OrderByDescending(product => product.CreatedAt).Select(product =>new ProductDto
+                           {
+                               Id = product.Id,
+                               UserId = product.UserId,
+                               Title = product.Title,
+                               Description = product.Description,
+                               Price = product.Price,
+                               ImageUrl = product.Image == null
+                               ? null
+                               : $"/KasiConnect/Images/{product.Image}",
+                               CreatedAt = product.CreatedAt
+                           })
+                           .ToListAsync();
+            return Ok(products);
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+
+            if(product == null)
+            {
+                return NotFound("Product not found.");
+            }
+
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+            
+            return NoContent();
+        
+        }
+
+
+    }
+
+    
+}

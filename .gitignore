@@ -1,0 +1,21 @@
+# Visual Studio / .NET build files
+KasiConnect.Api/bin/
+KasiConnect.Api/obj/
+KasiConnect.Api/.vs/
+*.user
+
+# OS/editor files
+.vscode/
+.DS_Store
+thumbs.db
+
+# Local environment files
+.env
+*.log
+
+# PHP/XAMPP local config
+xampp-control.ini
+
+# Uploaded/dev-only files you do not want public
+# Keep this commented if you want portfolio  images incldued
+# Images/ 

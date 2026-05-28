@@ -1,0 +1,1 @@
+window.KASI_API_BASE_URL = "https://localhost:7223/api";

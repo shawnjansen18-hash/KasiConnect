@@ -1,0 +1,21 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace KasiConnect.Api.DTO
+{
+    public class CreateProductDto
+    {
+        [Required]
+        public int UserId {  get; set; }
+        [Required]
+        [MaxLength (100)]
+        public string Title {  get; set; }
+        [Required]
+        [MaxLength (3000)]
+        public string Description { get; set; }
+        [Required]
+        [Range (0.01, 999999.99)]
+        public decimal Price { get; set; }
+        [MaxLength(250)]
+        public string? Image {  get; set; }
+    }
+}
