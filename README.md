@@ -117,3 +117,9 @@ KasiConnect
 
     ## Swagger API
     ![Swagger API](docs/Swagger.png)
+
+    ## Docker
+
+    The ASP.NET Core API incldues a DockerFile.
+    Build the API image from the `KasiConnect.Api` folder:
+        docker build -t kasiconnect-api .
