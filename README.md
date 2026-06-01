@@ -100,9 +100,20 @@ KasiConnect
 
     ## Screenshot
 
+    ## Marketplace
     ![Marketplace](docs/marketplace.png)
+    
+    ## Product Details
     ![Product Details](docs/product-description.png)
+    
+    ## Add Products
     ![Add Product](docs/add-products.png)
+
+    ## My orders
     ![My Orders](docs/my-orders.png)
+
+    ## Seller Dashboard
     ![Seller Dasshboard](docs/seller-dashboard.png)
+
+    ## Swagger API
     ![Swagger API](docs/Swagger.png)
