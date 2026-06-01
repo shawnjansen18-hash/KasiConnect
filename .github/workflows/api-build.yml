@@ -25,4 +25,4 @@ jobs:
 
     - name: Build Api 
       working-directory: KasiConnect.Api
-      run: dotnet build --configuration Release --no restore
+      run: dotnet build --configuration Release --no-restore
