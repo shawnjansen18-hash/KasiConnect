@@ -98,7 +98,7 @@ KasiConnect
 5. Open the PHP Frontend
     - open: http://localhost/KasiConnect
 
-    ## Screenshot
+## Screenshot
 
     ## Marketplace
     ![Marketplace](docs/marketplace.png)
@@ -123,3 +123,10 @@ KasiConnect
     The ASP.NET Core API incldues a DockerFile.
     Build the API image from the `KasiConnect.Api` folder:
         docker build -t kasiconnect-api .
+
+##  CI/CD
+
+This project includes a GitHub Actions workflow that builds the ASP.NET Core API on push and pull requests.
+
+Workflow file:
+    .github/workflows/api-build.yml

@@ -1,0 +1,28 @@
+name: APU build
+
+on:
+  push:
+    paths:
+      - "KasiConnect.Api/**"
+      - ".github/workflows/api-build.yml"
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout respository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: "8.0.x"
+
+    - name: Restore dependencies 
+      working-directory: KasiConnect.Api
+      run: dotnet restore
+
+    - name: Build Api 
+      working-directory: KasiConnect.Api
+      run: dotnet build --configuration Release --no restore
