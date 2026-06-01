@@ -1,5 +1,7 @@
 # KasiConnect
 
+![API Build](https://github.com/shawnjansen18-hash/KasiConnect/actions/workflows/api-build.yml/badge.svg)
+
 KasiConnect is a local marketplace web application where users can list products, browse items, leave reviews, place orders, and manage seller order statuses.
 
 This project started as a PHP/XAMPP application and was modernized by adding an ASP.NET Core Web API backend that connects to the same MySQL database.
