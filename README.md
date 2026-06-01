@@ -1,4 +1,5 @@
 # KasiConnect
+
 KasiConnect is a local marketplace web application where users can list products, browse items, leave reviews, place orders, and manage seller order statuses.
 
 This project started as a PHP/XAMPP application and was modernized by adding an ASP.NET Core Web API backend that connects to the same MySQL database.
@@ -29,18 +30,20 @@ This project started as a PHP/XAMPP application and was modernized by adding an 
 - Seller dashboard
 - Update order status
 
-## API Features
-- `GET /api/products`
-- `GET /api/products?search=value`
-- `GET /api/products/{id}`
-- `POST /api/products`
-- `DELETE /api/products/{id}`
-- `GET /api/products/{id}/reviews`
-- `POST /api/products/{id}/reviews`
-- `POST /api/orders`
-- `GET /api/users/{userId}/orders`
-- `GET /api/sellers/{sellerId}/orders`
-- `PATCH /api/orders/{id}/status`
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| GET | `/api/products` | Get all products |
+| GET | `/api/products?search=value` | Search products |
+| GET | `/api/products/{id}` | Get one product |
+| POST | `/api/products` | Create a product |
+| DELETE | `/api/products/{id}` | Delete a product |
+| GET | `/api/products/{id}/reviews` | Get product reviews |
+| POST | `/api/products/{id}/reviews` | Create a review |
+| POST | `/api/orders` | Create an order |
+| GET | `/api/users/{userId}/orders` | Get buyer orders |
+| GET | `/api/users/{userId}/products` | Get seller listings |
+| GET | `/api/sellers/{sellerId}/orders` | Get seller orders |
+| PATCH | `/api/orders/{id}/status` | Update order status |
 
 ## Project Structure
 ```text
@@ -68,4 +71,27 @@ KasiConnect
 - Add Docker support
 - Deploy the API to Azure
 - Add GitHub Actions for CI/CD
-- Improve frontend validation adn error handling 
+- Improve frontend validation and error handling 
+
+## Running the Project Locally
+1. Start Xampp.
+    - Apache
+    - MySQL
+2. Import the Database
+    - Open phpMyAdmin
+    - create or import the kasi_connect database
+3. Configure the PHP Database Connection
+    - <?php
+        $conn = new mysqli("localhost", "root", "", "kasi_connect");
+
+            if ($conn->connect_error) 
+            {
+                die("Database connection failed: " . $conn->connect_error);
+            }
+        ?>
+4. Run the ASP.NET Core API
+    - open the terminal in KasiConnect.Api
+    - run: dotnet run
+    - The API should start on a localhost URL (https://localhost:7223)
+5. Open the PHP Frontend
+    - open: http://localhost/KasiConnect
