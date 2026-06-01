@@ -80,6 +80,8 @@ KasiConnect
 2. Import the Database
     - Open phpMyAdmin
     - create or import the kasi_connect database
+    - a clean database schema is included at:
+        database/kasi_connect_schema.sql 
 3. Configure the PHP Database Connection
     - <?php
         $conn = new mysqli("localhost", "root", "", "kasi_connect");
@@ -95,3 +97,12 @@ KasiConnect
     - The API should start on a localhost URL (https://localhost:7223)
 5. Open the PHP Frontend
     - open: http://localhost/KasiConnect
+
+    ## Screenshot
+
+    ![Marketplace](docs/marketplace.png)
+    ![Product Details](docs/product-description.png)
+    ![Add Product](docs/add-products.png)
+    ![My Orders](docs/my-orders.png)
+    ![Seller Dasshboard](docs/seller-dashboard.png)
+    ![Swagger API](docs/Swagger.png)
