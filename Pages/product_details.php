@@ -1,7 +1,4 @@
 <?php
-if (session_start() == PHP_SESSION_NONE) {
-    session_start();
-}
 
 $id = isset($_GET["id"]) ? intval($_GET["id"]) : 0;
 $currentUserId = $_SESSION["user_id"] ?? null;
@@ -63,6 +60,8 @@ $currentUserId = $_SESSION["user_id"] ?? null;
         const apiBaseUrl = window.KASI_API_BASE_URL;
         const productId = <?php echo $id  ?>;
 
+        const apiToken = <?php echo json_encode($_session["api_token"] ?? null); ?>;
+
         const currentUserId = <?php echo $currentUserId == null ? "null" : $currentUserId  ?>;
         const productDetails = document.getElementById("productDetails");
         const ratingSummary = document.getElementById("ratingSummary");
@@ -115,20 +114,20 @@ $currentUserId = $_SESSION["user_id"] ?? null;
             const buyMessage = document.getElementById("buyMessage");
 
             buyButton.addEventListener("click", async () => {
-                if (currentUserId === null) {
+                if (apiToken === null) {
                     buyMessage.textContent = "Please log in beforebuying this product.";
                     return;
                 }
 
                 const orderData = {
-                    productId: product.id,
-                    buyerId: currentUserId
+                    productId: product.id
                 };
 
                 const response = await fetch(`${apiBaseUrl}/orders`, {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${apiToken}`
                     },
                     body: JSON.stringify(orderData)
                 });
@@ -190,7 +189,7 @@ $currentUserId = $_SESSION["user_id"] ?? null;
         reviewForm.addEventListener("submit", async event => {
             event.preventDefault();
 
-            if (currentUserId === null) {
+            if (apiToken === null) {
                 reviewMessage.textContent = "Please log in before submitting a review";
                 return;
             }
@@ -202,7 +201,6 @@ $currentUserId = $_SESSION["user_id"] ?? null;
             }
 
             const reviewData = {
-                userId: currentUserId,
                 rating: Number(selectedRating.value),
                 reviewText: reviewText.value
             };
@@ -210,7 +208,8 @@ $currentUserId = $_SESSION["user_id"] ?? null;
             const response = await fetch(`${apiBaseUrl}/products/${productId}/reviews`, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${apiToken}`
                 },
                 body: JSON.stringify(reviewData)
             });

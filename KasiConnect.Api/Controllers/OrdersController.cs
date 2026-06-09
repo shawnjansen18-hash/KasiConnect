@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 
 namespace KasiConnect.Api.Controllers
@@ -20,9 +22,16 @@ namespace KasiConnect.Api.Controllers
             _context = context;
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateOrder(CreateOrderDto createOrderDto)
         {
+            var buyerIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if(!int.TryParse(buyerIdValue, out var buyerId))
+            {
+                return Unauthorized("Invalid token.");
+            }
+
             var product = await _context.Products.FirstOrDefaultAsync(product => product.Id == createOrderDto.ProductId);
 
             if (product == null)
@@ -30,14 +39,14 @@ namespace KasiConnect.Api.Controllers
                 return NotFound("Product not found.");
             }
 
-            var buyerExists = await _context.Users.AnyAsync(user => user.Id == createOrderDto.BuyerId);
+            var buyerExists = await _context.Users.AnyAsync(user => user.Id == buyerId);
 
             if (!buyerExists)
             {
                 return BadRequest("Buyer does not exist");
             }
 
-            if(product.UserId == createOrderDto.BuyerId)
+            if(product.UserId == buyerId)
             {
                 return BadRequest("You cannot buy your own product.");
             }
@@ -45,7 +54,7 @@ namespace KasiConnect.Api.Controllers
             var order = new Order
             {
                 ProductId = product.Id,
-                BuyerId = createOrderDto.BuyerId,
+                BuyerId = buyerId,
                 SellerId = product.UserId,
                 Status = "Pending"
             };
@@ -128,9 +137,17 @@ namespace KasiConnect.Api.Controllers
             return Ok(orderDtos);
         }
 
+        [Authorize]
         [HttpPatch("{id:int}/status")]
         public async Task<IActionResult> UpdateOrderStatus(int id, UpdateOrderStatusDto updateOrderStatusDto)
         {
+            var sellerIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(sellerIdValue, out var sellerId))
+            {
+                return Unauthorized("Invalid Token");
+            }
+
             var allowedStatuses = new[] { "Pending", "Approved", "Completed", "Cancelled" };
 
             if (!allowedStatuses.Contains(updateOrderStatusDto.Status))

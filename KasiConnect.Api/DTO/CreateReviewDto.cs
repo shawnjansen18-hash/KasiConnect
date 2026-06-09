@@ -4,8 +4,6 @@ namespace KasiConnect.Api.DTO
 {
     public class CreateReviewDto
     {
-        [Required]
-        public int UserId { get; set; }
         [Range(1,5)]
         public int Rating { get; set; }
         [Required]

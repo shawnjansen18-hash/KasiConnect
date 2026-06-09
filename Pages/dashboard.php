@@ -23,6 +23,14 @@ if (!isset($_SESSION["user"])) {
     <h2>Dashboard</h2>
     <p>Welcome, <?php echo $_SESSION["user"]; ?> </p>
 
+    <?php
+    if (isset($_SESSION["api_token"])) {
+        echo "<p>API token stored</p>";
+    } else {
+        echo "<p>No API token found</p>";
+    }
+    ?>
+
     <a href="../logout.php">Logout</a>
 </body>
 

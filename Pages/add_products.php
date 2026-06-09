@@ -130,7 +130,8 @@ include("../Includes/header.php");
     <script>
         const apiBaseUrl = window.KASI_API_BASE_URL;
 
-        const userId = <?php echo $user_id === null ? "null" : $user_id; ?>;
+        const apiToken = <?php echo json_encode($_SESSION["api_token"] ?? null);  ?>;
+
         const uploadedImageName = <?php echo $uploadedImageName === null ? "null" : json_encode($uploadedImageName); ?>;
         const uploadError = <?php echo $uploadError === null ? "null" : json_encode($uploadError); ?>;
 
@@ -150,7 +151,6 @@ include("../Includes/header.php");
 
         async function createProduct() {
             const productData = {
-                userId: userId,
                 title: submittedTitle,
                 description: submittedDescription,
                 price: submittedPrice,
@@ -160,7 +160,8 @@ include("../Includes/header.php");
             const response = await fetch(`${apiBaseUrl}/products`, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${apiToken}`
                 },
                 body: JSON.stringify(productData)
             });

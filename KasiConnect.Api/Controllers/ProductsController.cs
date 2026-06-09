@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace KasiConnect.Api.Controllers
 {
@@ -19,6 +21,7 @@ namespace KasiConnect.Api.Controllers
             _context = context;
         }
 
+        
         [HttpGet]
         public async Task<IActionResult> GetProducts([FromQuery] string? search)
         {
@@ -48,7 +51,7 @@ namespace KasiConnect.Api.Controllers
         }
         
         /*----------------------------
-                GetProduct
+                Get Product
         ----------------------------*/
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetProduct(int id)
@@ -78,7 +81,7 @@ namespace KasiConnect.Api.Controllers
         }
 
         /*----------------------------
-                GetReviews
+                Get Reviews
         ----------------------------*/
 
         [HttpGet("{id:int}/reviews")]
@@ -111,10 +114,16 @@ namespace KasiConnect.Api.Controllers
         /*----------------------------
              Createing the reviews
         ----------------------------*/
-
+        [Authorize]
         [HttpPost("{id:int}/reviews")]
         public async Task<IActionResult> CreateProductReview(int id, CreateReviewDto createReviewDto)
         {
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if(!int.TryParse(userIdValue, out var userId))
+            {
+                return Unauthorized("Invalid Token.");
+            }
+            
             var productExists = await _context.Products.AnyAsync(productExists => productExists.Id == id);
 
             if(!productExists)
@@ -122,7 +131,7 @@ namespace KasiConnect.Api.Controllers
                 return NotFound("Product not found.");
             }
 
-            var userExists = await _context.Users.AnyAsync(user => user.Id == createReviewDto.UserId);
+            var userExists = await _context.Users.AnyAsync(user => user.Id == userId);
 
             if (!userExists)
             {
@@ -132,7 +141,6 @@ namespace KasiConnect.Api.Controllers
             var review = new Review
             {
                 ProductId = id,
-                UserId = createReviewDto.UserId,
                 Rating = createReviewDto.Rating,
                 ReviewText = createReviewDto.ReviewText
             };
@@ -147,7 +155,6 @@ namespace KasiConnect.Api.Controllers
             {
                 Id = review.Id,
                 ProductId = review.ProductId,
-                UserId = review.UserId,
                 Rating = review.Rating,
                 ReviewText = review.ReviewText,
                 CreatedAt = review.CreatedAt
@@ -157,19 +164,30 @@ namespace KasiConnect.Api.Controllers
 
         }
 
+        /*----------------------------
+             Create Products
+        ----------------------------*/
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateProduct(CreateProductDto createProductDto)
         {
-            var sellerExists = await _context.Users.AnyAsync(user => user.Id == createProductDto.UserId);
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if(!int.TryParse(userIdValue, out var userId))
+            {
+                return Unauthorized("Invalid token.");
+            }
+
+            var sellerExists = await _context.Users.AnyAsync(user => user.Id == userId);
 
             if(!sellerExists)
             {
-                return BadRequest("Seller does npt exists");
+                return BadRequest("Seller does not exists");
             }
 
             var product = new Product
             {
-                UserId = createProductDto.UserId,
+                UserId = userId,
                 Title = createProductDto.Title,
                 Description = createProductDto.Description,
                 Price = createProductDto.Price,
@@ -224,14 +242,25 @@ namespace KasiConnect.Api.Controllers
             return Ok(products);
         }
 
+        [Authorize]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if(!int.TryParse(userIdValue,out var userId))
+            {
+                return Unauthorized("Invalid Token.");
+            }
+
             var product = await _context.Products.FindAsync(id);
 
             if(product == null)
             {
                 return NotFound("Product not found.");
+            }
+            if(product.UserId != userId)
+            {
+                return Forbid("You can only delete your own products.");
             }
 
             _context.Products.Remove(product);

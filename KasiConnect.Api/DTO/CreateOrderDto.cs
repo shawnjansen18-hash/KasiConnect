@@ -6,7 +6,6 @@ namespace KasiConnect.Api.DTO
     {
         [Required]
         public int ProductId {  get; set; }
-        [Required]
-        public int BuyerId {  get; set; }
+        
     }
 }
