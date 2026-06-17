@@ -80,7 +80,7 @@ $user_id = $_SESSION["user_id"];
         loadMyProducts();
 
         async function deleteProduct(productId) {
-            const confirmed = confirm("are you are you want to delete this product?");
+            const confirmed = confirm("are you sure you want to delete this product?");
 
             if (!confirmed) {
                 return;

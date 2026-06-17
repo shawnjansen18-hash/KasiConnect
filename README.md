@@ -37,7 +37,7 @@ This project started as a PHP/XAMPP application and was modernized by adding an 
 
 ## API Endpoints
 
-| Method | Endpoint | Description |
+| Method | Endpoint | Description | Auth |
 | --- | --- | --- |
 | POST | `/api/auth/register` | Register a new user | No |
 | POST | `/api/auth/login` | Log in and return JWT token | No |

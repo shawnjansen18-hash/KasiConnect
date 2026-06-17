@@ -119,7 +119,7 @@ $currentUserId = $_SESSION["user_id"] ?? null;
 
             buyButton.addEventListener("click", async () => {
                 if (apiToken === null) {
-                    buyMessage.textContent = "Please log in beforebuying this product.";
+                    buyMessage.textContent = "Please log in before buying this product.";
                     return;
                 }
 
@@ -150,7 +150,7 @@ $currentUserId = $_SESSION["user_id"] ?? null;
         async function loadReviews() {
             const response = await fetch(`${apiBaseUrl}/products/${productId}/reviews`);
             if (!response.ok) {
-                reviewList.innerHTML = "<p>Could not loadreviews</p>"
+                reviewList.innerHTML = "<p>Could not load reviews</p>"
             }
 
             const reviews = await response.json();

@@ -1,13 +1,11 @@
 ﻿using KasiConnect.Api.Data;
 using KasiConnect.Api.DTO;
 using KasiConnect.Api.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http.HttpResults;
+
 
 
 namespace KasiConnect.Api.Controllers

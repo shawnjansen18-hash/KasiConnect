@@ -1,9 +1,7 @@
 ﻿using KasiConnect.Api.Data;
 using KasiConnect.Api.DTO;
 using KasiConnect.Api.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
@@ -185,7 +183,7 @@ namespace KasiConnect.Api.Controllers
 
             if(!sellerExists)
             {
-                return BadRequest("Seller does not exists");
+                return BadRequest("Seller does not exist");
             }
 
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };

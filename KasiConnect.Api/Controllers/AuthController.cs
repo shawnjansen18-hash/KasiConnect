@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using KasiConnect.Api.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace KasiConnect.Api.Controllers
 {
@@ -38,7 +37,7 @@ namespace KasiConnect.Api.Controllers
             
             if(!passwordIsValid)
             {
-                return Unauthorized("Invalid emailorpassword.");
+                return Unauthorized("Invalid email or password.");
             }
 
             var token = GenerateJwtToken(user.Id, user.Name, user.Email);
