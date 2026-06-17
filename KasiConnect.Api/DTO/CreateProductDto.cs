@@ -15,8 +15,7 @@ namespace KasiConnect.Api.DTO
         [Required]
         [Range (0.01, 999999.99)]
         public decimal Price { get; set; }
-        
-        [MaxLength(250)]
-        public string? Image {  get; set; }
+
+        public IFormFile ImageFile { get; set; } = null;
     }
 }

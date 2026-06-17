@@ -15,15 +15,18 @@ This project started as a PHP/XAMPP application and was modernized by adding an 
 - Entity Framework Core
 - MySQL / MariaDB
 - XAMPP
+- JWT Authentication
+- GitHub Actions
 - Swagger
 
 ## Features
 
 - User login and registration
+- JWT-based API authentication
 - Browse marketplace products
 - Search products
 - View product details
-- Add product listings
+- Add product listings with image upload
 - Delete own listings
 - Submit product reviews
 - View product reviews
@@ -32,33 +35,53 @@ This project started as a PHP/XAMPP application and was modernized by adding an 
 - Seller dashboard
 - Update order status
 
+## API Endpoints
+
 | Method | Endpoint | Description |
 | --- | --- | --- |
-| GET | `/api/products` | Get all products |
-| GET | `/api/products?search=value` | Search products |
-| GET | `/api/products/{id}` | Get one product |
-| POST | `/api/products` | Create a product |
-| DELETE | `/api/products/{id}` | Delete a product |
-| GET | `/api/products/{id}/reviews` | Get product reviews |
-| POST | `/api/products/{id}/reviews` | Create a review |
-| POST | `/api/orders` | Create an order |
-| GET | `/api/users/{userId}/orders` | Get buyer orders |
-| GET | `/api/users/{userId}/products` | Get seller listings |
-| GET | `/api/sellers/{sellerId}/orders` | Get seller orders |
-| PATCH | `/api/orders/{id}/status` | Update order status |
+| POST | `/api/auth/register` | Register a new user | No |
+| POST | `/api/auth/login` | Log in and return JWT token | No |
+| GET | `/api/products` | Get all products | No |
+| GET | `/api/products?search=value` | Search products | No |
+| GET | `/api/products/{id}` | Get one product | No |
+| POST | `/api/products` | Create a product with image upload | Yes |
+| DELETE | `/api/products/{id}` | Delete own product | Yes |
+| GET | `/api/products/{id}/reviews` | Get product reviews | No |
+| POST | `/api/products/{id}/reviews` | Create a review | Yes |
+| POST | `/api/orders` | Create an order | Yes |
+| GET | `/api/users/{userId}/orders` | Get buyer orders | No |
+| GET | `/api/users/{userId}/products` | Get seller listings | No |
+| GET | `/api/sellers/{sellerId}/orders` | Get seller orders | No |
+| PATCH | `/api/orders/{id}/status` | Update seller order status | Yes |
 
 ## Project Structure
 ```text
 KasiConnect
 ├── CSS
+├── database
 ├── Images
 ├── Includes
 ├── JS
 ├── Pages
+├── Pages_Legacy
 ├── KasiConnect.Api
 ├── index.php
-└── logout.php
+├── logout.php
+├── docker-compose.yml
+├── README.md
 ```
+
+## Architecture
+PHP frontend 
+    |
+    | JavaScript fetch()
+    v
+APS.NET Core Web API
+    |
+    | Entity Framework Core
+    v
+MySql / MariaDB
+
 
 ## What I Learned
 - Connected an ASP.NET Core API to an existing MySQL database
@@ -68,8 +91,6 @@ KasiConnect
 - Practiced backend development, API design, and database integration
 
 ## Future Improvements
-- Add JWT authentication to the ASP.NET Core API
-- Move image upload fully into the C# API
 - Add Docker support
 - Deploy the API to Azure
 - Add GitHub Actions for CI/CD
@@ -120,11 +141,18 @@ KasiConnect
     ## Swagger API
     ![Swagger API](docs/Swagger.png)
 
-## Docker
+## Authentication
+    KasiConnect uses JWT authentication in the ASP.NET Core API.
+    The Php login flow authenticates the user and requests a JWTtoken from:
+        POST/api/auth/login
+    
+    Protected API actions include:
+        - Creating products
+        - Creating orders
+        - Creating reviews
+        - Deleting products
+        - Updating order statuses
 
-    The ASP.NET Core API incldues a DockerFile.
-    Build the API image from the `KasiConnect.Api` folder:
-        docker build -t kasiconnect-api .
 
 ##  CI/CD
 

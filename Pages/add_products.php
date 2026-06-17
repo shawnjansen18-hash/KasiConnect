@@ -11,27 +11,6 @@ if (!isset($_SESSION["user"])) {
 }
 $user_id = $_SESSION["user_id"] ?? null;
 
-$title = $_POST["title"] ?? "";
-$description = $_POST["description"] ?? "";
-$price = $_POST["price"] ?? "";
-
-$uploadedImageName = null;
-$uploadError = null;
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["image"])) {
-    $imageName = $_FILES["image"]["name"];
-    $tmpName = $_FILES["image"]["tmp_name"];
-
-    $targetDir = "../Images/";
-    $targetFile = $targetDir . basename($imageName);
-
-    if (move_uploaded_file($tmpName, $targetFile)) {
-        $uploadedImageName = $imageName;
-    } else {
-        $uploadError = "Image upload failed.";
-    }
-}
-
 ?>
 
 <?php
@@ -129,41 +108,41 @@ include("../Includes/header.php");
 
     <script>
         const apiBaseUrl = window.KASI_API_BASE_URL;
-
-        const apiToken = <?php echo json_encode($_SESSION["api_token"] ?? null);  ?>;
-
-        const uploadedImageName = <?php echo $uploadedImageName === null ? "null" : json_encode($uploadedImageName); ?>;
-        const uploadError = <?php echo $uploadError === null ? "null" : json_encode($uploadError); ?>;
-
-        const submittedTitle = <?php echo json_encode($title); ?>;
-        const submittedDescription = <?php echo json_encode($description); ?>;
-        const submittedPrice = <?php echo $price === "" ? "null" : json_encode((float)$price); ?>;
+        const apiToken = <?php echo json_encode($_SESSION["api_token"] ?? null); ?>;
 
         const addProductMessage = document.getElementById("addProductMessage");
+        const addProductForm = document.getElementById("addProductForm");
 
-        if (uploadError !== null) {
-            addProductMessage.textContent = uploadError;
-        }
+        addProductForm.addEventListener("submit", async event => {
+            event.preventDefault();
 
-        if (uploadedImageName !== null) {
-            createProduct();
-        }
+            if (apiToken === null) {
+                addProductMessage.textContent = "Please log in before adding a product.";
+                return;
+            }
 
-        async function createProduct() {
-            const productData = {
-                title: submittedTitle,
-                description: submittedDescription,
-                price: submittedPrice,
-                image: uploadedImageName
-            };
+            const title = document.getElementById("titleInput").value;
+            const description = document.getElementById("descriptionInput").value;
+            const price = document.getElementById("priceInput").value;
+            const imageFile = document.getElementById("imageInput").files[0];
+
+            if (!imageFile) {
+                addProductMessage.textContent = "Please choose an image.";
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("title", title);
+            formData.append("description", description);
+            formData.append("price", price);
+            formData.append("imageFile", imageFile);
 
             const response = await fetch(`${apiBaseUrl}/products`, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
                     "Authorization": `Bearer ${apiToken}`
                 },
-                body: JSON.stringify(productData)
+                body: formData
             });
 
             if (!response.ok) {
@@ -178,10 +157,12 @@ include("../Includes/header.php");
 
             addProductMessage.textContent = `Product added successfully. New ID: ${createdProduct.id}`;
 
+            addProductForm.reset();
+
             setTimeout(() => {
                 window.location.href = "/KasiConnect/Pages/products.php";
             }, 1000);
-        }
+        });
     </script>
 
 

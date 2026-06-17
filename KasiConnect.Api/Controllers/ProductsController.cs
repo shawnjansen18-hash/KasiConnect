@@ -15,10 +15,12 @@ namespace KasiConnect.Api.Controllers
     public class ProductsController :ControllerBase
     {
         private readonly KasiConnectDbContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public ProductsController(KasiConnectDbContext context)
+        public ProductsController(KasiConnectDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         
@@ -141,6 +143,7 @@ namespace KasiConnect.Api.Controllers
             var review = new Review
             {
                 ProductId = id,
+                UserId = userId,
                 Rating = createReviewDto.Rating,
                 ReviewText = createReviewDto.ReviewText
             };
@@ -169,7 +172,7 @@ namespace KasiConnect.Api.Controllers
         ----------------------------*/
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> CreateProduct(CreateProductDto createProductDto)
+        public async Task<IActionResult> CreateProduct([FromForm]CreateProductDto createProductDto)
         {
             var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -185,13 +188,35 @@ namespace KasiConnect.Api.Controllers
                 return BadRequest("Seller does not exists");
             }
 
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var extension = Path.GetExtension(createProductDto.ImageFile.FileName).ToLowerInvariant();
+
+            if (!allowedExtensions.Contains(extension))
+            {
+                return BadRequest("Only JPG, PNG, and WEBP images are allowed");
+            }
+
+            var imgName = $"{Guid.NewGuid()}{extension}";
+            var imgFolder = Path.GetFullPath(Path.Combine(_environment.ContentRootPath, "..", "Images"));
+
+            Directory.CreateDirectory(imgFolder);
+
+            var imgPath = Path.Combine(imgFolder, imgName);
+
+            using (var stream = new FileStream(imgPath, FileMode.Create))
+            {
+                await createProductDto.ImageFile.CopyToAsync(stream);
+            }
+
+
+
             var product = new Product
             {
                 UserId = userId,
                 Title = createProductDto.Title,
                 Description = createProductDto.Description,
                 Price = createProductDto.Price,
-                Image = createProductDto.Image
+                Image = imgName
             };
 
             _context.Products.Add(product);

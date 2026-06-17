@@ -6,6 +6,8 @@ using KasiConnect.Api.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using KasiConnect.Api.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace KasiConnect.Api.Controllers
 {
@@ -78,6 +80,43 @@ namespace KasiConnect.Api.Controllers
                 );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(RegisterDto registerDto)
+        {
+            var emailExists = await _context.Users.AnyAsync(user => user.Email == registerDto.Email);
+
+            if(emailExists)
+            {
+                return BadRequest("Email is already registered");
+            }
+
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
+
+            var user = new User
+            {
+                Name = registerDto.Name,
+                Email = registerDto.Email,
+                Password = passwordHash
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            var token = GenerateJwtToken(user.Id, user.Name, user.Email);
+
+            var response = new AuthResponseDto
+            {
+                UserId = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Token = token
+            };
+
+            return CreatedAtAction(nameof(Login), response);
+
 
         }
 

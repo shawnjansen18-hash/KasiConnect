@@ -38,6 +38,8 @@ $user_id = $_SESSION["user_id"];
         const productsMessage = document.getElementById("productsMessage");
         const myProductsList = document.getElementById("myProductsList");
 
+        const apiToken = <?php echo json_encode($_SESSION["api_token"] ?? null);  ?>;
+
         async function loadMyProducts() {
             const response = await fetch(`${apiBaseUrl}/users/${userId}/products`);
 
@@ -85,8 +87,11 @@ $user_id = $_SESSION["user_id"];
             }
 
             const response = await fetch(`${apiBaseUrl}/products/${productId}`, {
-                method: "DELETE"
-            });
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${apiToken}`
+                },
+            })
 
             if (!response.ok) {
                 productsMessage.textContent = "Could not delete product.";

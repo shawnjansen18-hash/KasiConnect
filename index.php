@@ -1,5 +1,4 @@
 <?php
-include("../Kasiconnect/Includes/database.php");
 
 $sql = "SELECT * FROM products ORDER by created_at DESC LIMIT 4";
 $result = $conn->query($sql);

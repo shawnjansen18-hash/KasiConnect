@@ -1,7 +1,7 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY ["KasiConnect.API.csproj", "./"]
+COPY ["KasiConnect.Api.csproj", "./"]
 RUN dotnet restore "KasiConnect.Api.csproj"
 
 COPY . .

@@ -1,4 +1,8 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 
 $id = isset($_GET["id"]) ? intval($_GET["id"]) : 0;
 $currentUserId = $_SESSION["user_id"] ?? null;
@@ -60,7 +64,7 @@ $currentUserId = $_SESSION["user_id"] ?? null;
         const apiBaseUrl = window.KASI_API_BASE_URL;
         const productId = <?php echo $id  ?>;
 
-        const apiToken = <?php echo json_encode($_session["api_token"] ?? null); ?>;
+        const apiToken = <?php echo json_encode($_SESSION["api_token"] ?? null); ?>;
 
         const currentUserId = <?php echo $currentUserId == null ? "null" : $currentUserId  ?>;
         const productDetails = document.getElementById("productDetails");

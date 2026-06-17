@@ -37,6 +37,8 @@ include("../Includes/header.php");
         const sellerOrdersMessage = document.getElementById("sellerOrdersMessage");
         const sellerOrdersList = document.getElementById("sellerOrdersList");
 
+        const apiToken = <?php echo json_encode($_SESSION["api_token"] ?? null);  ?>;
+
         async function loadSellerOrders() {
             const response = await fetch(`${apiBaseUrl}/sellers/${sellerId}/orders`);
 
@@ -85,7 +87,8 @@ include("../Includes/header.php");
             const response = await fetch(`${apiBaseUrl}/orders/${orderId}/status`, {
                 method: "PATCH",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${apiToken}`
                 },
                 body: JSON.stringify({
                     status: status

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 
 namespace KasiConnect.Api.Controllers
@@ -159,6 +160,11 @@ namespace KasiConnect.Api.Controllers
             if (order == null)
             {
                 return NotFound("Order not found");
+            }
+
+            if (order.SellerId != sellerId)
+            {
+                return Forbid("You can only update orders for your own products");
             }
 
             order.Status = updateOrderStatusDto.Status;

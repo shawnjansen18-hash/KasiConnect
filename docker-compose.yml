@@ -23,7 +23,7 @@ services:
         environment:
             ASPNETCORE_ENVIRONMENT: Development
             ASPNETCORE_URLS: http://+:8080
-            ConnectionStrings_DefaultConnection: server=db;database=kasi_connect;user=root;password=rootpassword;ConvertZeroDateTime=True;
+            ConnectionStrings__DefaultConnection: server=db;database=kasi_connect;user=root;password=rootpassword;ConvertZeroDateTime=True;
         ports:
             - "8080:8080"
 
